@@ -6,6 +6,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { corsConfig } from "./configs/corsConfig.js";
 
+import userRouter from "./routers/userRouter.js";
+
 const app = express();
 dotenv.config();
 
@@ -13,8 +15,6 @@ app.use(cors(corsConfig));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: true }));
-
-import userRouter from "./routers/userRouter.js";
 
 app.use("/user", userRouter);
 
