@@ -4,11 +4,11 @@ import cors from "cors";
 import session from "express-session";
 
 import "./configs/dotenvConfig.js";
-
 import { corsConfig } from "./configs/corsConfig.js";
 import { sessionConfig } from "./configs/sessionConfig.js";
 
 import userRouter from "./routers/userRouter.js";
+import authRouter from "./routers/authRouter.js";
 
 const app = express();
 
@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session(sessionConfig));
 
 app.use("/user", userRouter);
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
