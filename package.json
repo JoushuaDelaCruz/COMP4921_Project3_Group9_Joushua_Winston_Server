@@ -11,6 +11,7 @@
   "author": "Joushua Dela Cruz and Winston Nguyen",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "connect-mongo": "^5.1.0",
     "cors": "^2.8.5",
