@@ -1,11 +1,11 @@
 import database from "../mySQLDatabaseConnection.js";
 
-export const register = async (username, password) => {
+export const register = async (credentials) => {
   const query = `
-        INSERT INTO users (username, password)
-        VALUES (:username, :password)
+        INSERT INTO users (username, email, password)
+        VALUES (:username, :email, :password)
     `;
-  const params = { username, password };
+  const params = credentials;
 
   try {
     const result = await database.query(query, params);
