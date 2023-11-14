@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { hash } from "bcrypt";
-import * as authDB from "../databases/db_auth.js";
+import { hash, compare, genSaltSync } from "bcrypt";
+import * as db_auth from "../databases/db_auth.js";
 
 const router = Router();
-const hashSalt = 12;
+const hashSalt = genSaltSync(12);
 const expireTime = 60 * 60 * 1000; // 1 hour
 
 router.get("/", (_, res) => {
@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
   const hashedPassword = await hash(password, hashSalt);
   const credentials = { email, username, password: hashedPassword };
   try {
-    const isSuccessful = await authDB.register(credentials);
+    const isSuccessful = await db_auth.register(credentials);
     if (isSuccessful) {
       res.send(true);
       return;
@@ -29,6 +29,31 @@ router.post("/register", async (req, res) => {
       return;
     }
     res.status(500).send(false);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const email = req.body.data.email;
+  const password = req.body.data.password;
+  try {
+    const user = await db_auth.getUserByEmail(email);
+    if (user === null) {
+      res.send(false);
+      return;
+    }
+    if (await compare(password, user.password)) {
+      req.session.authenticated = true;
+      req.session.user_id = user.user_id;
+      req.session.username = user.username;
+      req.session.cookie.maxAge = expireTime;
+      res.send(req.sessionID);
+      return;
+    }
+    res.send(null);
+    return;
+  } catch (err) {
+    res.status(500).send(false);
+    return;
   }
 });
 
