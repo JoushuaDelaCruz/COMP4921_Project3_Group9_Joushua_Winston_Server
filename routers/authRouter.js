@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { hash } from "bcrypt";
-import * as authDB from "../database/authDB.js";
+import * as authDB from "../databases/db_auth.js";
 
 const router = Router();
 const hashSalt = 12;
@@ -16,12 +16,20 @@ router.post("/register", async (req, res) => {
   const email = req.body.data.email;
   const hashedPassword = await hash(password, hashSalt);
   const credentials = { email, username, password: hashedPassword };
-  const isSuccessful = await authDB.register(credentials);
-  if (isSuccessful) {
-    res.send(true);
-    return;
+  try {
+    const isSuccessful = await authDB.register(credentials);
+    if (isSuccessful) {
+      res.send(true);
+      return;
+    }
+    res.status(500).send(false);
+  } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      res.status(409).send(false);
+      return;
+    }
+    res.status(500).send(false);
   }
-  res.status(500).send(false);
 });
 
 export default router;
