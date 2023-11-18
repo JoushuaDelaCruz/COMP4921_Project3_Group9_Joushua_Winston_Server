@@ -1,11 +1,10 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import session from "express-session";
+import cookieParser from "cookie-parser";
 
 import "./configs/dotenvConfig.js";
 import { corsConfig } from "./configs/corsConfig.js";
-import { sessionConfig } from "./configs/sessionConfig.js";
 
 import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
@@ -13,10 +12,10 @@ import authRouter from "./routers/authRouter.js";
 const app = express();
 
 app.use(cors(corsConfig));
-app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session(sessionConfig));
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
