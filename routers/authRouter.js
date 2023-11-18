@@ -57,4 +57,24 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/checkUsernameExists/:username", async (req, res) => {
+  const username = req.params.username;
+  try {
+    const usernameExists = await db_auth.checkUsernameExists(username);
+    res.send(usernameExists);
+  } catch (err) {
+    res.status(500).send(false);
+  }
+});
+
+router.get("/checkEmailExists/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const emailExists = await db_auth.checkEmailExists(email);
+    res.send(emailExists);
+  } catch (err) {
+    res.status(500).send(false);
+  }
+});
+
 export default router;
