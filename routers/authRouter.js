@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Error registering user" });
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
-      res.status(409).json({ message: "User or email already exists" });
+      res.status(403).json({ message: "User or email already exists" });
       return;
     }
     res.status(500).json({ message: "Error registering user" });
@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
       res.json({ message: "Credential is incorrect" });
       return;
     }
-    const payload = { id: user.id, username: user.username };
+    const payload = { id: user.user_id, username: user.username };
     const token = await jwt.login(payload);
     if (token) {
       res.send({ token });
@@ -80,12 +80,12 @@ router.get("/checkUsernameExists/:username", async (req, res) => {
   try {
     const usernameExists = await db_auth.checkUsernameExists(username);
     if (usernameExists) {
-      res.json({ message: "Username already exists", isSuccessful: false });
+      res.json({ message: "Username already exists", is_exists: true });
       return;
     }
-    res.json({ isSuccessful: true });
+    res.json({ is_exists: false });
   } catch (err) {
-    res.status(500).send({ message: err.message, isSuccessful: false });
+    res.status(500).send({ message: err.message, is_exists: true });
   }
 });
 
@@ -94,14 +94,14 @@ router.get("/checkEmailExists/:email", async (req, res) => {
   try {
     const emailExists = await db_auth.checkEmailExists(email);
     if (emailExists) {
-      res.json({ message: "Email already exists", isSuccessful: false });
+      res.json({ message: "Email already exists", is_exists: true });
       return;
     } else {
-      res.json({ isSuccessful: true });
+      res.json({ is_exists: false });
       return;
     }
   } catch (err) {
-    res.status(500).send({ message: err.message, isSuccessful: false });
+    res.status(500).send({ message: err.message, is_exists: true });
   }
 });
 
