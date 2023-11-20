@@ -32,7 +32,7 @@ const _verify = (token) => {
 export const verify = async (token) => {
   try {
     const data = await _verify(token);
-    return { is_valid: true, status: "valid", data: data };
+    return { is_valid: true, status: "valid", user: data };
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       return { is_valid: false, status: "expired" };
