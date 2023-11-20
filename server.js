@@ -8,6 +8,7 @@ import { corsConfig } from "./configs/corsConfig.js";
 
 import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
+import profileRouter from "./routers/profileRouter.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
+app.use("/profile", profileRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
