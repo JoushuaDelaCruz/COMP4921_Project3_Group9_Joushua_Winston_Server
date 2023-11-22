@@ -1,24 +1,12 @@
 import { Router } from "express";
 import { hash, compare, genSaltSync } from "bcrypt";
 import * as db_auth from "../databases/db_auth.js";
-import * as jwt from "./classes/jwt.js";
 
 const router = Router();
 const hashSalt = genSaltSync(12);
 
 router.get("/", (_, res) => {
   res.send("Welcome to authentication router!");
-});
-
-router.get("/verify", async (req, res) => {
-  const token = req.cookies.token;
-  if (token === undefined) {
-    res.send(false);
-    return;
-  }
-  const verification = await jwt.verify(token);
-  res.send(verification.is_valid);
-  return;
 });
 
 router.post("/register", async (req, res) => {
@@ -44,12 +32,12 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  if (req.body.data === undefined) {
+  if (req.body === undefined) {
     res.status(400).send({ message: "Bad request" });
     return;
   }
-  const email = req.body.data.email;
-  const password = req.body.data.password;
+  const email = req.body.email;
+  const password = req.body.password;
   try {
     const user = await db_auth.getUserByEmail(email);
     if (user === undefined) {
@@ -60,16 +48,12 @@ router.post("/login", async (req, res) => {
       res.json({ message: "Credential is incorrect" });
       return;
     }
-    const payload = { id: user.user_id, username: user.username };
-    const token = await jwt.login(payload);
-    if (token) {
-      res.send({ token });
-      return;
-    } else {
-      res.status(500).json({ message: "Internal error please try again" });
-      return;
-    }
+    req.session.authenticated = true;
+    req.session.user_id = user.user_id;
+    req.session.username = user.username;
+    res.json({ session: req.sessionID, success: true });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "Error logging in" });
     return;
   }
@@ -103,6 +87,19 @@ router.get("/checkEmailExists/:email", async (req, res) => {
   } catch (err) {
     res.status(500).send({ message: err.message, is_exists: true });
   }
+});
+
+router.post("/logout", (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.destroy(session, (err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send({ message: "Error logging out" });
+      return;
+    }
+    res.clearCookie("session");
+    res.json({ success: true });
+  });
 });
 
 export default router;
