@@ -16,7 +16,8 @@ export const getUserByEmail = async (email) => {
         SELECT 
           user_id,
           username,
-          password 
+          password,
+          image
         FROM users
         WHERE email = :email
     `;
