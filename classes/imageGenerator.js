@@ -26,5 +26,3 @@ export const getRandomImage = () => {
   const image = images[Math.floor(Math.random() * images.length)];
   return image.public_id;
 };
-
-console.log(getRandomImage());
