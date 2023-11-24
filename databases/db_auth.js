@@ -2,8 +2,8 @@ import database from "../mySQLDatabaseConnection.js";
 
 export const register = async (credentials) => {
   const query = `
-        INSERT INTO users (username, email, password)
-        VALUES (:username, :email, :password)
+        INSERT INTO users (username, email, password, image)
+        VALUES (:username, :email, :password, :profileImg)
     `;
   const params = credentials;
 
