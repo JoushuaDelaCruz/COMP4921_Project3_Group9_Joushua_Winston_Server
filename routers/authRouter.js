@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { hash, compare, genSaltSync } from "bcrypt";
 import * as db_auth from "../databases/db_auth.js";
+import { getRandomImage } from "../classes/imageGenerator.js";
 
 const router = Router();
 const hashSalt = genSaltSync(12);
@@ -10,11 +11,12 @@ router.get("/", (_, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  const username = req.body.data.username;
-  const password = req.body.data.password;
-  const email = req.body.data.email;
+  const username = req.body.username;
+  const password = req.body.password;
+  const email = req.body.email;
   const hashedPassword = await hash(password, hashSalt);
-  const credentials = { email, username, password: hashedPassword };
+  const profileImg = getRandomImage();
+  const credentials = { email, username, password: hashedPassword, profileImg };
   try {
     const isSuccessful = await db_auth.register(credentials);
     if (isSuccessful) {
