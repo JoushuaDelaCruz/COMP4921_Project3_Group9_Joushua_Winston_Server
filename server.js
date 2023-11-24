@@ -42,7 +42,7 @@ app.get("/verify", async (req, res) => {
       return;
     }
     if (session === null) {
-      res.status(400).send(false);
+      res.send(false);
       return;
     }
     res.send(session.authenticated);
