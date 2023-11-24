@@ -53,7 +53,11 @@ router.post("/login", async (req, res) => {
     req.session.authenticated = true;
     req.session.user_id = user.user_id;
     req.session.username = user.username;
-    res.json({ session: req.sessionID, success: true });
+    const userInfo = {
+      username: user.username,
+      image: user.image,
+    };
+    res.json({ session: req.sessionID, success: true, user: userInfo });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error logging in" });
