@@ -27,11 +27,7 @@ export const getIDByName = async (username) => {
   return result[0][0];
 };
 
-export const addFriend = async (current_user, username_to_add) => {
-  const { user_id: friend_id } = await getIDByName(username_to_add);
-  if (friend_id === undefined) {
-    return { success: false, message: "User does not exist", status: 404 };
-  }
+export const addFriend = async (current_user, friend_id) => {
   const query = `
     INSERT INTO friend (requester_user_id, friend_user_id, date_added)
     VALUES (:current_user, :friend_id, :date_created)
@@ -47,5 +43,49 @@ export const addFriend = async (current_user, username_to_add) => {
       return { success: false, message: "Friend already added", status: 409 };
     }
     return { success: false, message: "Error adding friend", status: 500 };
+  }
+};
+
+export const getRandomUsers = async (current_user) => {
+  const query = `
+  SELECT 
+	user_id,
+    username,
+    date_created,
+    image
+  FROM users 
+  LEFT JOIN friend ON requester_user_id = :current_user AND friend_user_id = user_id OR requester_user_id = user_id AND friend_user_id = :current_user
+  WHERE friend_id IS NULL AND user_id != :current_user
+  LIMIT 3;`;
+
+  const params = { current_user };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+export const searchFriends = async (current_user, name) => {
+  const query = `
+  SELECT 
+  user_id,
+    username,
+    date_created,
+    image
+  FROM users 
+  LEFT JOIN friend ON requester_user_id = :current_user AND friend_user_id = user_id OR requester_user_id = user_id AND friend_user_id = :current_user
+  WHERE username LIKE :name AND friend_id IS NULL AND user_id != :current_user
+  LIMIT 3;`;
+
+  const params = { current_user, name: `%${name}%` };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return null;
   }
 };
