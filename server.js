@@ -10,7 +10,7 @@ import { sessionConfig } from "./configs/sessionConfig.js";
 
 import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
-// import profileRouter from "./routers/profileRouter.js";
+import profileRouter from "./routers/profileRouter.js";
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(expressSession(sessionConfig));
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
-// app.use("/profile", profileRouter);
+app.use("/profile", profileRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
@@ -42,10 +42,11 @@ app.get("/verify", async (req, res) => {
       return;
     }
     if (session === null) {
-      res.send(false);
+      res.status(400).send(false);
       return;
     }
-    res.send(session.authenticated);
+    const user = { username: session.username, image: session.image };
+    res.send({ authenticated: session.authenticated, user });
   });
 });
 
