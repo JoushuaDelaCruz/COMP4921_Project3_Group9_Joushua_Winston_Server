@@ -16,7 +16,13 @@ router.post("/register", async (req, res) => {
   const email = req.body.email;
   const hashedPassword = await hash(password, hashSalt);
   const profileImg = getRandomImage();
-  const credentials = { email, username, password: hashedPassword, profileImg };
+  const credentials = {
+    email,
+    username,
+    password: hashedPassword,
+    profileImg,
+    date: new Date(),
+  };
   try {
     const isSuccessful = await db_auth.register(credentials);
     if (isSuccessful) {
@@ -53,6 +59,7 @@ router.post("/login", async (req, res) => {
     req.session.authenticated = true;
     req.session.user_id = user.user_id;
     req.session.username = user.username;
+    req.session.image = user.image;
     const userInfo = {
       username: user.username,
       image: user.image,
