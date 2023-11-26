@@ -7,6 +7,24 @@ router.get("/", (_, res) => {
   res.send("Welcome to profile router!");
 });
 
+router.get("/friends", (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error getting friends");
+      return;
+    }
+    if (session === null) {
+      res.status(400).send("No session found");
+      return;
+    }
+    const user_id = session.user_id;
+    const result = await db_profile.getFriends(user_id);
+    res.status(200).send(result);
+  });
+});
+
 router.get("/randomUsers", async (req, res) => {
   const session = req.cookies.session;
   req.sessionStore.get(session, async (err, session) => {
