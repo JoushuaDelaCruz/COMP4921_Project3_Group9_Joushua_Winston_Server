@@ -1,32 +1,5 @@
 import database from "../mySQLDatabaseConnection.js";
 
-export const getProfileByName = async (username, current_user) => {
-  const query = `
-  SELECT 
-	  username,
-    CASE WHEN friend_id IS NOT NULL THEN 1 ELSE 0 END AS is_added
-  FROM users
-  LEFT JOIN friend ON requester_user_id = :current_user AND friend_user_id = user_id OR requester_user_id = user_id AND friend_user_id = :current_user
-  WHERE username = :username
-  `;
-  const params = { username, current_user };
-  const result = await database.query(query, params);
-  return result[0];
-};
-
-export const getIDByName = async (username) => {
-  const query = `
-    SELECT 
-        user_id
-    FROM users
-    WHERE username = :username
-          `;
-  const params = { username };
-
-  const result = await database.query(query, params);
-  return result[0][0];
-};
-
 export const addFriend = async (current_user, friend_id) => {
   const query = `
     INSERT INTO friend (requester_user_id, friend_user_id, date_added)
@@ -81,6 +54,28 @@ export const searchFriends = async (current_user, name) => {
   LIMIT 3;`;
 
   const params = { current_user, name: `%${name}%` };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+};
+
+export const getFriends = async (current_user) => {
+  const query = `
+  SELECT 
+	  username,
+    image,
+    date_added,
+    accepted
+  FROM users
+  JOIN friend ON requester_user_id = :current_user AND friend_user_id = user_id OR requester_user_id = user_id AND friend_user_id = :current_user;  
+  `;
+
+  const params = { current_user };
+
   try {
     const result = await database.query(query, params);
     return result[0];
