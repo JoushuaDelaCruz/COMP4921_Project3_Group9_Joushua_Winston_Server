@@ -11,6 +11,7 @@ import { sessionConfig } from "./configs/sessionConfig.js";
 import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
 import profileRouter from "./routers/profileRouter.js";
+import notificationRouter from "./routers/notificationsRouter.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(expressSession(sessionConfig));
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
+app.use("/notifications", notificationRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
