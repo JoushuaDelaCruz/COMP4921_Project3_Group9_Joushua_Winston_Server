@@ -71,7 +71,10 @@ export const getFriends = async (current_user) => {
     date_added,
     accepted
   FROM users
-  JOIN friend ON requester_user_id = :current_user AND friend_user_id = user_id OR requester_user_id = user_id AND friend_user_id = :current_user;  
+  JOIN friend ON 
+    requester_user_id = :current_user AND friend_user_id = user_id OR 
+    requester_user_id = user_id AND friend_user_id = :current_user AND accepted = 1
+  ORDER BY date_added DESC;
   `;
 
   const params = { current_user };
