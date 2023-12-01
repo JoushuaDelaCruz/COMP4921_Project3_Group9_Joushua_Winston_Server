@@ -110,7 +110,6 @@ router.post("/logout", (req, res) => {
       res.status(500).send({ message: "Error logging out" });
       return;
     }
-    res.clearCookie("session");
     res.json({ success: true });
   });
 });
