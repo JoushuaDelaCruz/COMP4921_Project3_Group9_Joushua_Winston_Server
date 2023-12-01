@@ -39,3 +39,19 @@ export const acceptFriendRequest = async (user_id, friend_id) => {
     return false;
   }
 };
+
+export const declineFriendRequest = async (user_id, friend_id) => {
+  const query = `
+        DELETE FROM friend
+        WHERE friend_id = :friend_id AND friend_user_id = :user_id;
+        `;
+  const params = { user_id, friend_id };
+
+  try {
+    const results = await database.query(query, params);
+    return results[0].affectedRows > 0;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
