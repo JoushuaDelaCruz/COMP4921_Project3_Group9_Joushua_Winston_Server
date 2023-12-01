@@ -25,9 +25,9 @@ router.get("/friends", (req, res) => {
   });
 });
 
-router.patch("/addFriend/:friend_id", (req, res) => {
+router.patch("/friend/accept", (req, res) => {
   const session = req.cookies.session;
-  const friend_id = req.params.friend_id;
+  const friend_id = req.query.friend;
   req.sessionStore.get(session, async (err, session) => {
     if (err) {
       console.log(err);
@@ -43,7 +43,37 @@ router.patch("/addFriend/:friend_id", (req, res) => {
       user_id,
       friend_id
     );
-    res.status(200).send({ success: result });
+    if (result) {
+      res.status(200).send({ success: result });
+      return;
+    }
+    res.status(404).send("Error adding friend");
+  });
+});
+
+router.delete("/friend/decline", (req, res) => {
+  const session = req.cookies.session;
+  const friend_id = req.query.friend;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error declining friend");
+      return;
+    }
+    if (session === null) {
+      res.status(400).send("No session found");
+      return;
+    }
+    const user_id = session.user_id;
+    const result = await db_notifications.declineFriendRequest(
+      user_id,
+      friend_id
+    );
+    if (result) {
+      res.status(200).send();
+      return;
+    }
+    res.status(404).send("Error adding friend");
   });
 });
 
