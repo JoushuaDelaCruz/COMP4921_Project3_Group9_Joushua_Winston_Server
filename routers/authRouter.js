@@ -16,7 +16,13 @@ router.post("/register", async (req, res) => {
   const email = req.body.email;
   const hashedPassword = await hash(password, hashSalt);
   const profileImg = getRandomImage();
-  const credentials = { email, username, password: hashedPassword, profileImg };
+  const credentials = {
+    email,
+    username,
+    password: hashedPassword,
+    profileImg,
+    date: new Date(),
+  };
   try {
     const isSuccessful = await db_auth.register(credentials);
     if (isSuccessful) {
@@ -53,7 +59,12 @@ router.post("/login", async (req, res) => {
     req.session.authenticated = true;
     req.session.user_id = user.user_id;
     req.session.username = user.username;
-    res.json({ session: req.sessionID, success: true });
+    req.session.image = user.image;
+    const userInfo = {
+      username: user.username,
+      image: user.image,
+    };
+    res.json({ session: req.sessionID, success: true, user: userInfo });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error logging in" });
@@ -99,7 +110,6 @@ router.post("/logout", (req, res) => {
       res.status(500).send({ message: "Error logging out" });
       return;
     }
-    res.clearCookie("session");
     res.json({ success: true });
   });
 });

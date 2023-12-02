@@ -12,6 +12,8 @@ import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
 import calendarRouter from "./routers/calendarRouter.js";
 // import profileRouter from "./routers/profileRouter.js";
+import profileRouter from "./routers/profileRouter.js";
+import notificationRouter from "./routers/notificationsRouter.js";
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use("/user", userRouter);
 app.use("/auth", authRouter);
 app.use("/calendar", calendarRouter)
 // app.use("/profile", profileRouter);
+app.use("/profile", profileRouter);
+app.use("/notifications", notificationRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
@@ -47,7 +51,8 @@ app.get("/verify", async (req, res) => {
       res.status(400).send(false);
       return;
     }
-    res.send(session.authenticated);
+    const user = { username: session.username, image: session.image };
+    res.send({ authenticated: session.authenticated, user });
   });
 });
 
