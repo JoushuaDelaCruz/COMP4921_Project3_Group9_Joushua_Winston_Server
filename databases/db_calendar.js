@@ -18,7 +18,9 @@ export const getEventsById = async (user_id) => {
           recurrence_exception,
           uuid
         FROM event
-        WHERE original_user_id = :user_id
+        JOIN event_user ON (original_user_id = user_id)
+        WHERE user_id = :user_id
+        AND accepted = 1
     `;
   const params = { user_id };
 
@@ -65,4 +67,26 @@ export const updateEvent = async (eventData) => {
 
   const result = await database.query(query, params);
   return result[0].affectedRows !== 0;
+}
+
+export const sendEventRequest = async (uuid, friends) => {
+  const query = `
+    INSERT INTO event_user (event_id, user_id) 
+    VALUES (
+      (SELECT event_id FROM event WHERE uuid = :uuid), 
+      (SELECT user_id from users WHERE username = :username)
+      );
+  `
+
+  await friends.forEach(friend => {
+    try {
+      database.query(query, {uuid: uuid, username: friend});
+    } catch {
+      console.log("ERROR SENDING EVENT REQUESTS");
+      return false;
+    }
+  }); 
+
+  return true;
+  
 }

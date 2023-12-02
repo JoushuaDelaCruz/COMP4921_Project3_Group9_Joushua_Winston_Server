@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as db_calendar from "../databases/db_calendar.js";
-
+import * as db_profile from "../databases/db_profile.js";
 const router = Router();
 
 router.get("/", (_, res) => {
@@ -43,8 +43,13 @@ router.post("/createEvent", async (req, res) => {
 
     const isSuccessful = await db_calendar.createEvent(eventData);
     if (isSuccessful) {
-      res.json({ success: true });
-      return;
+      if (req.body.added_friends) {
+        res.redirect(307, '/calendar/sendEventRequest');
+        return;
+      } else {
+        res.json({ success: true });
+        return;
+      }
     }
     res.status(500).json({ message: "Error creating event" });
     return;
@@ -101,8 +106,9 @@ router.post("/deleteEvent", async (req, res) => {
   return;
 })
 
-router.post("/updateEvent", async (req, res) => {
-
+router.post("/sendEventRequest", async (req, res) => {
+  console.log(req.body.added_friends);
+  const success = db_calendar.sendEventRequest(req.body.uuid, req.body.added_friends);
 })
 
 export default router;
