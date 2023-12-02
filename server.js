@@ -10,6 +10,7 @@ import { sessionConfig } from "./configs/sessionConfig.js";
 
 import userRouter from "./routers/userRouter.js";
 import authRouter from "./routers/authRouter.js";
+import calendarRouter from "./routers/calendarRouter.js";
 // import profileRouter from "./routers/profileRouter.js";
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(expressSession(sessionConfig));
 
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
+app.use("/calendar", calendarRouter)
 // app.use("/profile", profileRouter);
 
 app.get("/", (req, res) => {
