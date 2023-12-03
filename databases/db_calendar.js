@@ -18,7 +18,7 @@ export const getEventsById = async (user_id) => {
           recurrence_exception,
           uuid
         FROM event
-        JOIN event_user ON (original_user_id = user_id)
+        JOIN event_user USING (event_id)
         WHERE user_id = :user_id
         AND accepted = 1
     `;
@@ -42,15 +42,14 @@ export const createEvent = async (eventData) => {
 }
 
 
-export const deleteEvent = async (eventData) => {
+export const deleteEvent = async (uuid, user_id) => {
   const query = `
-      DELETE FROM event 
-      WHERE uuid = :uuid
+      DELETE FROM event_user
+      WHERE event_id = (SELECT event_id FROM event WHERE uuid = :uuid)
+      AND user_id = :user_id
     `;
 
-  const params = eventData;
-
-  const result = await database.query(query, params);
+  const result = await database.query(query, {uuid: uuid, user_id: user_id});
   return result[0].affectedRows !== 0;
 }
 

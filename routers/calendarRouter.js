@@ -88,13 +88,7 @@ router.post("/updateEvent", async (req, res) => {
 
 router.post("/deleteEvent", async (req, res) => {
   if(req.session.authenticated) {
-
-    const eventData = {
-      uuid: req.body.uuid
-    }
-
-
-    let results = await db_calendar.deleteEvent(eventData);
+    let results = await db_calendar.deleteEvent(req.body.uuid, req.session.user_id);
     if (results) {
       res.send({ success: true });
       return;
