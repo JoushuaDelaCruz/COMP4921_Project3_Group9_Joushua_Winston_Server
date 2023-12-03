@@ -9,7 +9,10 @@ router.get("/", (_, res) => {
 
 router.get("/userEvents", async (req, res) => {
   if(req.session.authenticated) {
-    let results = await db_calendar.getEventsById(req.session.user_id);
+    let results = await db_calendar.getEventsById(req.session.user_id, req.session.username);
+    results.forEach((row) => {
+      row.is_original = row.username === req.session.username
+    })
     res.send({ events: results, success: true });
     return;
   }
@@ -20,10 +23,6 @@ router.get("/userEvents", async (req, res) => {
 router.post("/createEvent", async (req, res) => {
   if(req.session.authenticated) {
     const created_datetime = new Date();
-    // let end_datetime = new Date(req.body.end_datetime);
-    // if(req.body.is_all_day) {
-    //   end_datetime.setMinutes(end_datetime.getMinutes() - 1);
-    // }
     const eventData = {
       user_id: req.session.user_id,
       title: req.body.title,
@@ -56,6 +55,7 @@ router.post("/createEvent", async (req, res) => {
   }
 })
 
+
 router.post("/updateEvent", async (req, res) => {
   if(req.session.authenticated) {
     const created_datetime = new Date();
@@ -75,9 +75,24 @@ router.post("/updateEvent", async (req, res) => {
       uuid: req.body.uuid
     }
 
-
     const isSuccessful = await db_calendar.updateEvent(eventData);
     if (isSuccessful) {
+      const deleteFriends = req.body.original_friends.filter(value => !req.body.new_friends.includes(value));
+      const addFriends = req.body.new_friends.filter(value => !req.body.original_friends.includes(value));
+      if(addFriends) {
+        const success = db_calendar.sendEventRequest(req.body.uuid, addFriends);
+        if (!success) {
+          res.status(500).json({ message: "Error adding event requests" });
+          return;
+        }
+      }
+      if(deleteFriends) {
+        const success = db_calendar.removeEventRequest(req.body.uuid, deleteFriends);
+        if (!success) {
+          res.status(500).json({ message: "Error removing event requests" });
+          return;
+        }
+      }
       res.json({ success: true });
       return;
     }
@@ -101,8 +116,15 @@ router.post("/deleteEvent", async (req, res) => {
 })
 
 router.post("/sendEventRequest", async (req, res) => {
-  console.log(req.body.added_friends);
   const success = db_calendar.sendEventRequest(req.body.uuid, req.body.added_friends);
+  if (success) {
+    res.json({ success: true });
+    return;
+  }
+
+  res.status(500).json({ message: "Error sending event requests" });
+  return;
 })
+
 
 export default router;
