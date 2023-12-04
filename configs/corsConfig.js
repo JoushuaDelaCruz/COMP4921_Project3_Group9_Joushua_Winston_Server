@@ -3,4 +3,5 @@ export const corsConfig = {
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true,
   optionsSuccessStatus: 200,
+  secure: true,
 };
