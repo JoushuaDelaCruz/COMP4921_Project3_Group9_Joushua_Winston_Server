@@ -55,3 +55,29 @@ export const declineFriendRequest = async (user_id, friend_id) => {
     return false;
   }
 };
+
+export const getEventInvites = async (current_user) => {
+  const query = `
+  SELECT 
+	event_user_id,
+    username as inviter,
+    image,
+    created_datetime,
+    start_datetime,
+    end_datetime,
+    title as event_title
+  FROM event
+  JOIN event_user eu USING (event_id)
+  JOIN users u ON original_user_id = u.user_id
+  WHERE original_user_id != :user_id AND eu.user_id = :user_id AND accepted = 0
+  ORDER BY created_datetime DESC;
+  `;
+  const params = { user_id: current_user };
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
