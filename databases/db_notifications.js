@@ -81,3 +81,36 @@ export const getEventInvites = async (current_user) => {
     return [];
   }
 };
+
+export const acceptEventInvite = async (event_user_id, user_id) => {
+  const query = `
+    UPDATE event_user
+    SET accepted = 1
+    WHERE event_user_id = :event_user_id AND user_id = :user_id;
+    `;
+  const params = { event_user_id, user_id };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0].affectedRows !== 0;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export const rejectEventInvite = async (event_user_id, user_id) => {
+  const query = `
+    DELETE FROM event_user
+    WHERE event_user_id = :event_user_id AND user_id = :user_id;
+    `;
+  const params = { event_user_id, user_id };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0].affectedRows !== 0;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
