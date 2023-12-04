@@ -5,6 +5,7 @@ import { getRandomImage } from "../classes/imageGenerator.js";
 
 const router = Router();
 const hashSalt = genSaltSync(12);
+const expireTime = 60 * 60 * 1000;
 
 router.get("/", (_, res) => {
   res.send("Welcome to authentication router!");
@@ -64,7 +65,16 @@ router.post("/login", async (req, res) => {
       username: user.username,
       image: user.image,
     };
-    res.json({ session: req.sessionID, success: true, user: userInfo });
+    res.cookie("session", req.sessionID, {
+      httpOnly: true,
+      maxAge: expireTime,
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.cookie("user", userInfo, {
+      maxAge: expireTime,
+      secure: process.env.NODE_ENV === "production",
+    });
+    res.json({ success: true, user: userInfo });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error logging in" });
@@ -110,6 +120,8 @@ router.post("/logout", (req, res) => {
       res.status(500).send({ message: "Error logging out" });
       return;
     }
+    res.clearCookie("session");
+    res.clearCookie("user");
     res.json({ success: true });
   });
 });
