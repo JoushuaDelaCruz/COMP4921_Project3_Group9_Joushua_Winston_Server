@@ -89,7 +89,6 @@ export const sendEventRequest = async (uuid, friends) => {
       (SELECT user_id from users WHERE username = :username)
       );
   `;
-
   await friends.forEach((friend) => {
     try {
       database.query(query, { uuid: uuid, username: friend });
