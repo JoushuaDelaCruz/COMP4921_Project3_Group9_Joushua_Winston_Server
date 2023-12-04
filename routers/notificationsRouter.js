@@ -95,4 +95,54 @@ router.delete("/friend/decline", (req, res) => {
   });
 });
 
+router.patch("/event/accept", (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error accepting invite");
+      return;
+    }
+    if (session === null) {
+      res.status(400).send("No session found");
+      return;
+    }
+    const user_id = session.user_id;
+    const result = await db_notifications.acceptEventInvite(
+      req.query.event,
+      user_id
+    );
+    if (result) {
+      res.status(200).send(true);
+      return;
+    }
+    res.status(404).send(false);
+  });
+});
+
+router.delete("/event/reject", (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error rejecting invite");
+      return;
+    }
+    if (session === null) {
+      res.status(400).send("No session found");
+      return;
+    }
+    const user_id = session.user_id;
+    const result = await db_notifications.rejectEventInvite(
+      req.query.event,
+      user_id
+    );
+    if (result) {
+      res.status(200).send();
+      return;
+    }
+    res.status(404).send();
+  });
+});
+
 export default router;
