@@ -59,7 +59,7 @@ export const searchFriends = async (current_user, name) => {
     return result[0];
   } catch (err) {
     console.log(err);
-    return null;
+    return [];
   }
 };
 
@@ -84,6 +84,6 @@ export const getFriends = async (current_user) => {
     return result[0];
   } catch (err) {
     console.log(err);
-    return null;
+    return [];
   }
 };
