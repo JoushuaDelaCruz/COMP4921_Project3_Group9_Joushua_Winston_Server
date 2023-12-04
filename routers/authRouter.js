@@ -66,13 +66,17 @@ router.post("/login", async (req, res) => {
       image: user.image,
     };
     res.cookie("session", req.sessionID, {
+      path: "/",
       httpOnly: true,
       maxAge: expireTime,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
     });
     res.cookie("user", userInfo, {
+      path: "/",
       maxAge: expireTime,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
     });
     res.json({ success: true, user: userInfo });
   } catch (err) {
