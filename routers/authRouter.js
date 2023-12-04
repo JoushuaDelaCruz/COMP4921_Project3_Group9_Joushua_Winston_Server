@@ -68,11 +68,11 @@ router.post("/login", async (req, res) => {
     res.cookie("session", req.sessionID, {
       httpOnly: true,
       maxAge: expireTime,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
     });
     res.cookie("user", userInfo, {
       maxAge: expireTime,
-      secure: process.env.NODE_ENV === "production",
+      secure: true,
     });
     res.json({ success: true, user: userInfo });
   } catch (err) {
