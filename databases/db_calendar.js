@@ -51,7 +51,6 @@ export const createEvent = async (eventData) => {
 
 export const deleteEvent = async (uuid, user_id) => {
   const deleteDate = new Date();
-  deleteDate.setMonth(deleteDate.getMonth() + 1);
   const query = `
       UPDATE event_user SET recycle_datetime = :delete_date
       WHERE user_id = :user_id
@@ -59,9 +58,9 @@ export const deleteEvent = async (uuid, user_id) => {
     `;
 
   const result = await database.query(query, {
-    uuid: uuid,
-    user_id: user_id,
     delete_date: deleteDate,
+    uuid: uuid,
+    user_id: user_id
   });
   return result[0].affectedRows !== 0;
 };
@@ -118,41 +117,4 @@ export const removeEventRequest = async (uuid, friends) => {
   });
 
   return true;
-};
-
-// Give it req.session.user_id, req.session.username
-export const getRecycleBin = async (user_id, username) => {
-  const query = `
-      SELECT 
-        title,
-        start_datetime,
-        end_datetime,
-        event_colour,
-        is_all_day,
-        start_timezone,
-        end_timezone,
-        location,
-        description,
-        recurrence_id,
-        recurrence_rule,
-        recurrence_exception,
-        uuid,
-        event_friends.friends,
-        username
-      FROM event
-      JOIN event_user USING (event_id)
-      JOIN users ON (event.original_user_id = users.user_id)
-      JOIN (SELECT GROUP_CONCAT(username) as friends, event_id
-        FROM event_user
-        JOIN users USING (user_id)
-        WHERE username != :username
-        GROUP BY(event_id)) as event_friends USING (event_id)
-      WHERE event_user.user_id = :user_id
-      AND accepted = 1
-      AND recycle_datetime IS NOT NULL;
-    `;
-  const params = { user_id, username };
-
-  const result = await database.query(query, params);
-  return result[0];
 };

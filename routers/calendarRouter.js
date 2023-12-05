@@ -1,6 +1,5 @@
 import { Router } from "express";
 import * as db_calendar from "../databases/db_calendar.js";
-import * as db_profile from "../databases/db_profile.js";
 const router = Router();
 
 router.get("/", (_, res) => {

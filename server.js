@@ -14,6 +14,7 @@ import calendarRouter from "./routers/calendarRouter.js";
 // import profileRouter from "./routers/profileRouter.js";
 import profileRouter from "./routers/profileRouter.js";
 import notificationRouter from "./routers/notificationsRouter.js";
+import recycleRouter from "./routers/recycleRouter.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/calendar", calendarRouter)
 // app.use("/profile", profileRouter);
 app.use("/profile", profileRouter);
 app.use("/notifications", notificationRouter);
+app.use("/recycle", recycleRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to our server!");
