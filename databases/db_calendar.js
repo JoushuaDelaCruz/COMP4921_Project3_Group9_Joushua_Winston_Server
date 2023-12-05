@@ -22,7 +22,7 @@ export const getEventsById = async (user_id, username) => {
       FROM event
       JOIN event_user USING (event_id)
       JOIN users ON (event.original_user_id = users.user_id)
-      JOIN (SELECT GROUP_CONCAT(username) as friends, event_id
+      LEFT JOIN (SELECT GROUP_CONCAT(username) as friends, event_id
         FROM event_user
         JOIN users USING (user_id)
         WHERE username != :username
