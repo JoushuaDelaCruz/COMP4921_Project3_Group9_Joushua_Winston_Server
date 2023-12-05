@@ -10,6 +10,6 @@ export const sessionConfig = {
   store: mongoStore,
   cookie: {
     maxAge: expireTime,
-    secure: false,
+    secure: true,
   },
 };

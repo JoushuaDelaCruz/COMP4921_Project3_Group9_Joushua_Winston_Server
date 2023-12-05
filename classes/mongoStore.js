@@ -9,5 +9,5 @@ export const mongoStore = MongoStore.create({
   crypto: {
     secret: mongodb_session_secret,
   },
-  collectionName: "sessions",
+  collectionName: "make-it-happen-sessions",
 });
