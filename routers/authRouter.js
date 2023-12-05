@@ -70,13 +70,13 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       maxAge: expireTime,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
     res.cookie("user", userInfo, {
       path: "/",
       maxAge: expireTime,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     });
     res.json({ success: true, user: userInfo });
   } catch (err) {
