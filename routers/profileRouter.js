@@ -55,6 +55,24 @@ router.get("/searchAcceptedFriends", async (req, res) => {
   });
 });
 
+router.get("/groups", async (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Error getting groups");
+      return;
+    }
+    if (session === null) {
+      res.status(400).send("No session found");
+      return;
+    }
+    const user_id = session.user_id;
+    const result = await db_profile.getGroups(user_id);
+    res.status(200).send(result);
+  });
+});
+
 router.get("/friends", (req, res) => {
   const session = req.cookies.session;
   req.sessionStore.get(session, async (err, session) => {

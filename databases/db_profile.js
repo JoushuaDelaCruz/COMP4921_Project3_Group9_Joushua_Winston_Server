@@ -139,3 +139,24 @@ export const getFriends = async (current_user) => {
     return [];
   }
 };
+
+export const getGroups = async (user_id) => {
+  const query = `
+  SELECT 
+	  group_name,
+    created_datetime,
+    COUNT(user_group_id) as num_members
+  FROM freedb_DB_calendar.group
+  JOIN user_group USING (group_id)
+  WHERE owner_user_id = :user_id
+  GROUP BY group_id`;
+  const params = { user_id };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
