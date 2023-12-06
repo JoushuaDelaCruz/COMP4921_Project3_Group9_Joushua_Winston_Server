@@ -6,20 +6,19 @@ export const getRecycleBin = async (user_id, username) => {
           title,
           start_datetime,
           end_datetime,
-          created_datetime,
+          event.created_datetime,
           event_colour,
           is_all_day,
           start_timezone,
           end_timezone,
           location,
           description,
-          recurrence_id,
           recurrence_rule,
-          recurrence_exception,
           uuid,
           event_friends.friends,
           username,
-          recycle_datetime
+          recycle_datetime,
+          group_name
         FROM event
         JOIN event_user USING (event_id)
         JOIN users ON (event.original_user_id = users.user_id)
@@ -28,6 +27,8 @@ export const getRecycleBin = async (user_id, username) => {
           JOIN users USING (user_id)
           WHERE username != :username
           GROUP BY(event_id)) as event_friends USING (event_id)
+        LEFT JOIN event_group USING (event_id)
+        LEFT JOIN freedb_DB_calendar.group USING (group_id)
         WHERE event_user.user_id = :user_id
         AND accepted = 1
         AND recycle_datetime IS NOT NULL;

@@ -12,12 +12,11 @@ export const getEventsById = async (user_id, username) => {
         end_timezone,
         location,
         description,
-        recurrence_id,
         recurrence_rule,
-        recurrence_exception,
         uuid,
         event_friends.friends,
-        username
+        username,
+        group_id
       FROM event
       JOIN event_user USING (event_id)
       JOIN users ON (event.original_user_id = users.user_id)
@@ -26,6 +25,8 @@ export const getEventsById = async (user_id, username) => {
         JOIN users USING (user_id)
         WHERE username != :username
         GROUP BY(event_id)) as event_friends USING (event_id)
+      LEFT JOIN event_group USING (event_id)
+      LEFT JOIN freedb_DB_calendar.group USING (group_id)
       WHERE event_user.user_id = :user_id
       AND accepted = 1
       AND recycle_datetime IS NULL;
@@ -38,9 +39,8 @@ export const getEventsById = async (user_id, username) => {
 
 export const createEvent = async (eventData) => {
   const query = `
-    INSERT INTO event (original_user_id, title, start_datetime, end_datetime, event_colour, created_datetime, is_all_day, start_timezone, end_timezone, location, description, recurrence_rule, recurrence_exception, uuid) 
-    VALUES (:user_id, :title, :start_datetime, :end_datetime, :event_colour, :created_datetime, :is_all_day, :start_timezone, :end_timezone, :location, :description, :recurrence_rule, :recurrence_exception, :uuid);
-
+    INSERT INTO event (original_user_id, title, start_datetime, end_datetime, event_colour, created_datetime, is_all_day, start_timezone, end_timezone, location, description, recurrence_rule, uuid) 
+    VALUES (:user_id, :title, :start_datetime, :end_datetime, :event_colour, :created_datetime, :is_all_day, :start_timezone, :end_timezone, :location, :description, :recurrence_rule, :uuid);
     `;
 
   const params = eventData;
@@ -117,4 +117,70 @@ export const removeEventRequest = async (uuid, friends) => {
   });
 
   return true;
+};
+
+export const getGroups = async (user_id) => {
+  const query = `
+    SELECT owned_groups.group_id, owned_groups.group_name FROM
+    (SELECT 
+      group_id, group_name, user_id
+    FROM freedb_DB_calendar.group
+    JOIN user_group USING (group_id)
+    UNION
+    SELECT group_id, group_name, owner_user_id
+    FROM freedb_DB_calendar.group) AS owned_groups
+    WHERE owned_groups.user_id = :user_id;
+  `;
+  const params = { user_id };
+
+  try {
+    const result = await database.query(query, params);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+};
+
+export const createGroupEvent = async (uuid, group_id, user_id) => {
+  const query = `
+  INSERT INTO event_group (event_id, group_id) 
+  VALUES (
+    (SELECT event_id FROM event WHERE uuid = :uuid), 
+    :group_id
+    );
+`;
+
+  const result = await database.query(query, { uuid: uuid, group_id: group_id });
+
+  const sendResult = await sendGroupEvent(uuid, group_id, user_id);
+
+
+  if(!sendResult) return false;
+
+  return result[0].insertId !== undefined;
+};
+
+
+export const sendGroupEvent = async (uuid, group_id, user_id) => {
+  const query = `
+      INSERT INTO event_user (user_id, event_id)
+      SELECT groupInfo.user_id, groupInfo.event_id
+      FROM (SELECT user_id, event_id
+            FROM freedb_DB_calendar.group
+            JOIN user_group USING (group_id)
+            JOIN event_group USING (group_id)
+            JOIN event USING (event_id)
+            WHERE group_id = :group_id
+            AND event_id = (SELECT event_id FROM event WHERE uuid = :uuid)
+            UNION
+            SELECT owner_user_id, (SELECT event_id FROM event WHERE uuid = :uuid)
+            FROM freedb_DB_calendar.group
+            WHERE group_id = :group_id
+            ) as groupInfo
+      WHERE user_id != :user_id
+    `
+  const result = await database.query(query, { uuid: uuid, group_id: group_id, user_id: user_id });
+
+  return result[0].insertId !== undefined;
 };

@@ -62,7 +62,7 @@ router.post("/createEvent", async (req, res) => {
     const isSuccessful = await db_calendar.createEvent(eventData);
     if (isSuccessful) {
       if(req.body.added_friends){
-        const success = db_calendar.sendEventRequest(
+        const success = await db_calendar.sendEventRequest(
           req.body.uuid,
           req.body.added_friends
         );
@@ -71,6 +71,19 @@ router.post("/createEvent", async (req, res) => {
           return;
         }
       }
+
+      if(req.body.added_groups) {
+        const success = await db_calendar.createGroupEvent(
+          req.body.uuid,
+          req.body.added_groups,
+          session.user_id
+        );
+        if (!success) {
+          res.status(500).json({ message: "Error adding group event requests" });
+          return;
+        }
+      }
+
       res.json({ success: true });
       return;
     }
@@ -178,5 +191,29 @@ router.post("/sendEventRequest", async (req, res) => {
   res.status(500).json({ message: "Error sending event requests" });
   return;
 });
+
+router.get("/getGroups", async (req, res) => {
+  const session = req.cookies.session;
+  req.sessionStore.get(session, async (err, session) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ message: "Error deleting event" });
+      return;
+    }
+    if (session === null) {
+      res.status(400).json({ message: "Invalid session" });
+      return;
+    }
+    const results = await db_calendar.getGroups(
+      session.user_id
+    );
+    if (results) {
+      res.status(200).send(results);
+      return;
+    }
+    res.status(500).json({ message: "Error getting groups" });
+    return;
+  });
+})
 
 export default router;
