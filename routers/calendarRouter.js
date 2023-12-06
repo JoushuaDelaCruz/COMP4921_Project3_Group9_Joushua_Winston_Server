@@ -61,13 +61,15 @@ router.post("/createEvent", async (req, res) => {
 
     const isSuccessful = await db_calendar.createEvent(eventData);
     if (isSuccessful) {
-      const success = db_calendar.sendEventRequest(
-        req.body.uuid,
-        req.body.added_friends
-      );
-      if (!success) {
-        res.status(500).json({ message: "Error adding event requests" });
-        return;
+      if(req.body.added_friends){
+        const success = db_calendar.sendEventRequest(
+          req.body.uuid,
+          req.body.added_friends
+        );
+        if (!success) {
+          res.status(500).json({ message: "Error adding event requests" });
+          return;
+        }
       }
       res.json({ success: true });
       return;
