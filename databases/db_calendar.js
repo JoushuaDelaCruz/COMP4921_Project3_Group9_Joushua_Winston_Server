@@ -69,8 +69,7 @@ export const updateEvent = async (eventData) => {
   const query = `
     UPDATE event SET title = :title, start_datetime = :start_datetime, end_datetime = :end_datetime, 
     event_colour = :event_colour, is_all_day = :is_all_day, start_timezone = :start_timezone, end_timezone = :end_timezone, location = :location, 
-    description = :description, recurrence_id = :recurrence_id, following_id = :following_id, recurrence_rule = :recurrence_rule, 
-    recurrence_exception = :recurrence_exception 
+    description = :description, recurrence_rule = :recurrence_rule
     WHERE (uuid = :uuid);
     `;
 
