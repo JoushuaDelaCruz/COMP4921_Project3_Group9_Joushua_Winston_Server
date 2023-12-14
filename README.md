@@ -14,7 +14,7 @@ The server that handles and stores event creation, user authentication, deleting
 * Event System
 * Friend requests system
 * Authentication
-* Scheduler - database feature that after 30 days the events in bin will be deleted forever!
+* Scheduler - database feature that manages 30 days old events moved to the bin will be deleted forever!
 
 ## Future Development Notes:
 * Re-create to NestJS?
